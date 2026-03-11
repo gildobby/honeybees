@@ -78,17 +78,6 @@
       line-height: 1.45;
       margin-bottom: 10px;
     }
-    .login-title em {
-      font-style: normal;
-      color: var(--accent);
-    }
-    .login-sub {
-      font-size: 13px;
-      color: #888;
-      line-height: 1.6;
-      word-break: keep-all;
-    }
-
     /* Social login */
     .social-section {
       display: flex;
@@ -159,156 +148,6 @@
     .terms-row a {
       color: #aaa;
       text-decoration: underline;
-      cursor: pointer;
-    }
-
-    /* ── 이용약관 바텀시트 ── */
-    .sheet-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.28s ease;
-      z-index: 100;
-    }
-    .sheet-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .terms-sheet {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-radius: 20px 20px 0 0;
-      padding: 28px 24px 36px;
-      transform: translateY(100%);
-      transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
-      z-index: 101;
-    }
-    .terms-sheet.open {
-      transform: translateY(0);
-    }
-
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background: #e0e0e0;
-      border-radius: 2px;
-      margin: 0 auto 24px;
-    }
-    .sheet-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 6px;
-    }
-    .sheet-subtitle {
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-
-    /* 전체 동의 */
-    .agree-all {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: #F7F7F7;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      cursor: pointer;
-    }
-    .agree-all-label {
-      font-size: 15px;
-      font-weight: 700;
-      color: #111;
-    }
-
-    /* 구분선 */
-    .sheet-divider {
-      height: 1px;
-      background: #f0f0f0;
-      margin-bottom: 16px;
-    }
-
-    /* 개별 항목 */
-    .agree-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      cursor: pointer;
-    }
-    .agree-item-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .agree-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 4px;
-    }
-    .badge-required {
-      background: #FFF0F5;
-      color: var(--accent);
-    }
-    .badge-optional {
-      background: #F3F3F3;
-      color: #999;
-    }
-    .agree-item-label {
-      font-size: 14px;
-      color: #333;
-    }
-    .agree-item-arrow {
-      color: #ccc;
-      font-size: 16px;
-    }
-
-    /* 체크박스 커스텀 */
-    .chk {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .chk.checked {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-    .chk svg { display: none; }
-    .chk.checked svg { display: block; }
-
-    /* 동의하고 시작 버튼 */
-    .btn-agree {
-      width: 100%;
-      height: 52px;
-      border: none;
-      border-radius: 12px;
-      background: #ddd;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: not-allowed;
-      margin-top: 24px;
-      transition: background 0.2s;
-    }
-    .btn-agree.active {
-      background: var(--accent);
       cursor: pointer;
     }
 
@@ -736,7 +575,7 @@
 
     <!-- 하단 화살표 네비게이션 -->
     <div style="position:absolute; bottom:28px; right:24px; display:flex; align-items:center; gap:8px;">
-      <button onclick="window.location.href='onboarding.html'" style="width:36px;height:36px;border:none;background:#F0F0F0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#e2e2e2'" onmouseout="this.style.background='#F0F0F0'">
+      <button onclick="window.location.href='onboarding_1.html'" style="width:36px;height:36px;border:none;background:#F0F0F0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#e2e2e2'" onmouseout="this.style.background='#F0F0F0'">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M5 2.5L9.5 7 5 11.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -882,10 +721,6 @@
 </div>
 
 <script>
-  function openOnboard() {
-    document.getElementById('onboardScreen').classList.add('open');
-  }
-
   function openHome() {
     document.getElementById('onboardScreen').classList.remove('open');
     setTimeout(() => {
