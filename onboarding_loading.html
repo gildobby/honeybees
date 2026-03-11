@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>분석 중</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8f8f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* 펄스 영역 */
+    .pulse-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 퍼져나가는 그라데이션 원 */
+    .wave {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,69,137,0.22) 0%, rgba(255,69,137,0.06) 50%, rgba(255,69,137,0) 75%);
+      animation: wave 3.2s ease-out infinite;
+    }
+
+    .wave:nth-child(1) { width: 220px; height: 220px; animation-delay: 0s; }
+    .wave:nth-child(2) { width: 220px; height: 220px; animation-delay: 1.05s; }
+    .wave:nth-child(3) { width: 220px; height: 220px; animation-delay: 2.1s; }
+
+    @keyframes wave {
+      0%   { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* 중앙 원 */
+    .center-circle {
+      position: relative;
+      z-index: 2;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #FF4589, #ff6aa3);
+      box-shadow: 0 6px 24px rgba(255, 69, 137, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pct-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    /* 텍스트 */
+    .text-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .main-text {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1e1e1e;
+      line-height: 1.45;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #bbb;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="pulse-wrap">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+
+      <div class="center-circle">
+        <span class="pct-text" id="pctText">0%</span>
+      </div>
+    </div>
+
+    <div class="text-wrap">
+      <p class="main-text">체형 분석하는 중...</p>
+      <p class="status-text" id="statusText">내게 맞는 체형 타입을 찾고 있어요</p>
+    </div>
+
+  </div>
+
+  <script>
+    const stages = [
+      { pct: 20 },
+      { pct: 40 },
+      { pct: 60 },
+      { pct: 100 },
+    ];
+
+    const pctEl = document.getElementById('pctText');
+
+    function setProgress(stage) {
+      pctEl.textContent = stage.pct + '%';
+    }
+
+    const timings = [400, 1400, 2600, 3800];
+
+    stages.forEach((s, i) => {
+      setTimeout(() => setProgress(s), timings[i]);
+    });
+  </script>
+</body>
+</html>

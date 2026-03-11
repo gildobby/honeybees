@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 체형 입력</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8f8f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 20px 32px;
+    }
+
+    .top-nav {
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -6px;
+      color: #111;
+      border-radius: 8px;
+      transition: 0.15s;
+    }
+
+    .back-btn:hover {
+      background: #f2f2f2;
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #111;
+      margin-left: 8px;
+    }
+
+    .step-dots {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .step-dot-item {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e0e0e0;
+    }
+
+    .step-dot-item.active {
+      width: 24px;
+      border-radius: 99px;
+      background: #FF4589;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1e1e1e;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .form {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #242424;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .required-badge {
+      font-size: 11px;
+      color: #fff;
+      background: #111;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #111;
+      background: #fff;
+    }
+
+    .input-wrapper input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 17px;
+      font-weight: 500;
+      color: #111;
+      background: transparent;
+      width: 100%;
+    }
+
+    .input-wrapper input::placeholder {
+      color: #ccc;
+      font-weight: 400;
+      font-size: 15px;
+    }
+
+    .input-wrapper input::-webkit-outer-spin-button,
+    .input-wrapper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .input-wrapper input[type=number] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    .input-unit {
+      font-size: 14px;
+      color: #aaa;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .size-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    #topSizeGrid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .size-sub {
+      display: block;
+      font-size: 11px;
+      color: inherit;
+      opacity: 0.6;
+      margin-top: 2px;
+    }
+
+    .size-btn {
+      padding: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: #f2f2f2;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .size-btn:hover {
+      background: #e8e8e8;
+      color: #111;
+    }
+
+    .size-btn.selected {
+      background: #FF4589;
+      color: #fff;
+    }
+
+    .size-btn.selected .size-sub {
+      opacity: 0.8;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 4px 0;
+    }
+
+    .optional-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .optional-label {
+      font-size: 12px;
+      color: #bbb;
+      text-align: center;
+      position: relative;
+    }
+
+    .optional-label::before,
+    .optional-label::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      background: #eee;
+    }
+
+    .optional-label::before { left: 0; }
+    .optional-label::after { right: 0; }
+
+    .optional-text {
+      font-size: 12px;
+      color: #bbb;
+      text-align: center;
+    }
+
+    .cta-wrapper {
+      margin-top: auto;
+      padding-top: 32px;
+    }
+
+    .cta-btn {
+      width: 100%;
+      padding: 18px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .cta-btn:disabled {
+      background: #e0e0e0;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .cta-btn:not(:disabled):hover {
+      background: #333;
+    }
+
+    .skip-btn {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #bbb;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .skip-btn:hover {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="top-nav">
+      <button class="back-btn" onclick="window.location.href='mobile-prototype.html'">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot-item active"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+    </div>
+
+    <div class="header">
+      <h1>내 체형부터 찾아볼까요?</h1>
+    </div>
+
+    <form class="form" id="onboardingForm">
+
+      <!-- 키 · 몸무게 -->
+      <div class="row">
+        <div class="field-group">
+          <div class="field-label">
+            키          </div>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="height"
+              placeholder="168"
+              inputmode="numeric"
+              maxlength="3"
+            />
+            <span class="input-unit">cm</span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">
+            몸무게          </div>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="weight"
+              placeholder="57"
+              inputmode="numeric"
+              maxlength="3"
+            />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상의 사이즈 -->
+      <div class="field-group">
+        <div class="field-label">
+          상의 사이즈        </div>
+        <div class="size-grid" id="topSizeGrid">
+          <button type="button" class="size-btn" data-value="90">90 <span class="size-sub">S</span></button>
+          <button type="button" class="size-btn" data-value="95">95 <span class="size-sub">M</span></button>
+          <button type="button" class="size-btn" data-value="100">100 <span class="size-sub">L</span></button>
+          <button type="button" class="size-btn" data-value="105">105 <span class="size-sub">XL</span></button>
+          <button type="button" class="size-btn" data-value="110">110 <span class="size-sub">2XL</span></button>
+        </div>
+      </div>
+
+      <!-- 하의 사이즈 -->
+      <div class="field-group">
+        <div class="field-label">
+          하의 사이즈        </div>
+        <div class="size-grid" id="bottomSizeGrid">
+          <button type="button" class="size-btn" data-value="55">55</button>
+          <button type="button" class="size-btn" data-value="66">66</button>
+          <button type="button" class="size-btn" data-value="77">77</button>
+          <button type="button" class="size-btn" data-value="88">88</button>
+        </div>
+      </div>
+
+
+    </form>
+
+    <div class="cta-wrapper">
+      <button class="cta-btn" id="ctaBtn" disabled>다음</button>
+    </div>
+
+  </div>
+
+  <script>
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const ctaBtn = document.getElementById('ctaBtn');
+
+    let topSize = null;
+    let bottomSize = null;
+
+    function setupSizeGrid(gridId, onSelect) {
+      const grid = document.getElementById(gridId);
+      grid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.size-btn');
+        if (!btn) return;
+        grid.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        onSelect(btn.dataset.value);
+        checkValidity();
+      });
+    }
+
+    setupSizeGrid('topSizeGrid', (v) => { topSize = v; });
+    setupSizeGrid('bottomSizeGrid', (v) => { bottomSize = v; });
+    function checkValidity() {
+      const h = heightInput.value.trim();
+      const w = weightInput.value.trim();
+      const valid = h && w && topSize && bottomSize;
+      ctaBtn.disabled = !valid;
+    }
+
+    [heightInput, weightInput].forEach(input => {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/\D/g, '');
+        checkValidity();
+      });
+    });
+
+    ctaBtn.addEventListener('click', () => {
+      const data = {
+        height: heightInput.value,
+        weight: weightInput.value,
+        topSize,
+        bottomSize,
+      };
+      console.log('온보딩 데이터:', data);
+      window.location.href = 'onboarding_2.html';
+    });
+  </script>
+</body>
+</html>
