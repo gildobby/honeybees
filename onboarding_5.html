@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>엉덩이둘레 입력</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 20px 32px;
+    }
+
+    .top-nav { margin-bottom: 20px; }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -4px;
+      color: var(--text-primary);
+      border-radius: var(--radius);
+      transition: 0.15s;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); }
+
+    .step-dots {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .step-dot-item {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .step-dot-item.active {
+      width: 24px;
+      border-radius: var(--radius-pill);
+      background: var(--brand);
+    }
+
+    .header { margin-bottom: 48px; }
+
+    .header h1 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .input-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .big-input-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .big-input-wrap input {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--text-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      width: 150px;
+      text-align: right;
+      background: transparent;
+      caret-color: var(--text-primary);
+    }
+
+    .big-input-wrap input::placeholder { color: var(--border); }
+
+    .big-input-wrap input::-webkit-outer-spin-button,
+    .big-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .unit {
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    .cta-wrapper { padding-top: 16px; }
+
+    .cta-btn {
+      width: 100%;
+      height: 47px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--btn-dark);
+      color: var(--text-inverse);
+      border: none;
+      border-radius: var(--radius);
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cta-btn:disabled {
+      background: var(--border);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    .cta-btn:not(:disabled):hover { background: var(--btn-dark-hover); }
+
+    .unsure-btn {
+      width: 100%;
+      height: 47px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-primary);
+      font-size: var(--text-base);
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 10px;
+    }
+    .unsure-btn:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="top-nav">
+      <button class="back-btn" onclick="window.location.href='onboarding_4.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item active"></div>
+    </div>
+
+    <div class="header">
+      <h1>엉덩이둘레를 입력해주세요</h1>
+      <p>하의 실루엣을 정확히 맞추는 마지막 단계예요</p>
+    </div>
+
+    <div class="input-area">
+      <div class="big-input-wrap">
+        <input type="text" id="hip" placeholder="92" inputmode="numeric" maxlength="3" autofocus />
+        <span class="unit">cm</span>
+      </div>
+    </div>
+
+    <div class="cta-wrapper">
+      <button class="unsure-btn" id="unsureBtn">잘 모르겠어요</button>
+      <button class="cta-btn" id="ctaBtn" disabled>분석하기</button>
+    </div>
+
+  </div>
+  <script>
+    const input = document.getElementById('hip');
+    const ctaBtn = document.getElementById('ctaBtn');
+    const unsureBtn = document.getElementById('unsureBtn');
+
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '');
+      ctaBtn.disabled = !input.value.trim();
+    });
+
+    ctaBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_loading.html';
+    });
+
+    unsureBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_loading.html';
+    });
+  </script>
+</body>
+</html>
