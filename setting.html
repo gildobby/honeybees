@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>설정</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── 탑바 ── */
+    .topbar {
+      flex-shrink: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 56px;
+      padding: 0 20px;
+      background: var(--bg-card);
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); }
+
+    .topbar-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    /* ── 리스트 섹션 ── */
+    .section {
+      margin: 32px 0 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 17px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: var(--text-base);
+      text-align: left;
+      transition: background 0.12s;
+    }
+
+    .list-item:active { background: var(--bg-chip); }
+
+    .list-item + .list-item {
+      border-top: 1px solid var(--border-light);
+    }
+
+    .list-item.logout {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .list-item.delete {
+      color: #e03131;
+      font-weight: 500;
+    }
+
+    /* ── 모달 ── */
+    .modal-backdrop {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 0 28px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--bg-card);
+      width: 100%;
+      border-radius: 16px;
+      padding: 28px 20px 20px;
+      opacity: 0;
+      transform: scale(0.94);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .modal-backdrop.open .modal-sheet {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: var(--text-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      height: 47px;
+      border-radius: var(--radius);
+      border: none;
+      font-family: inherit;
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      letter-spacing: -0.2px;
+    }
+
+    .modal-btn:hover  { opacity: 0.88; }
+    .modal-btn:active { opacity: 0.75; }
+
+    .modal-btn.confirm-logout { background: var(--brand); color: #fff; }
+    .modal-btn.confirm-delete { background: var(--brand); color: #fff; }
+    .modal-btn.cancel {
+      background: var(--bg-chip);
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- 탑바 -->
+  <div class="topbar">
+    <button class="back-btn" onclick="location.href='mypage.html'" aria-label="뒤로">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <span class="topbar-title">설정</span>
+  </div>
+
+  <!-- 메뉴 리스트 -->
+  <div class="section">
+    <button class="list-item logout" id="logoutBtn">로그아웃</button>
+    <button class="list-item delete" id="deleteBtn">탈퇴하기</button>
+  </div>
+
+  <!-- 로그아웃 모달 -->
+  <div class="modal-backdrop" id="logoutModal">
+    <div class="modal-sheet">
+      <p class="modal-title">정말 로그아웃할까요?</p>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeModal('logoutModal')">취소</button>
+        <button class="modal-btn confirm-logout" onclick="closeModal('logoutModal')">로그아웃</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탈퇴 모달 -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal-sheet">
+      <p class="modal-title">정말 탈퇴할까요?</p>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeModal('deleteModal')">취소</button>
+        <button class="modal-btn confirm-delete" onclick="closeModal('deleteModal')">탈퇴하기</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  function openModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.add('open');
+    modal.addEventListener('click', function onBg(e) {
+      if (e.target === modal) { closeModal(id); modal.removeEventListener('click', onBg); }
+    });
+  }
+
+  function closeModal(id) {
+    const modal = document.getElementById(id);
+    const sheet = modal.querySelector('.modal-sheet');
+    sheet.style.opacity = '0';
+    sheet.style.transform = 'scale(0.94)';
+    setTimeout(() => {
+      modal.classList.remove('open');
+      sheet.style.opacity = '';
+      sheet.style.transform = '';
+    }, 200);
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => openModal('logoutModal'));
+  document.getElementById('deleteBtn').addEventListener('click', () => openModal('deleteModal'));
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>가상피팅 갤러리</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── 탑바 ───────────────────────────────── */
+    .result-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 20px;
+    }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      flex-shrink: 0;
+      transition: 0.15s;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); border-radius: 8px; }
+
+    /* ── 타이틀 + 선택하기 행 ─────────────────── */
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0px 24px 12px;
+    }
+
+    .title-main {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .select-btn {
+      background: var(--text-primary);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .select-btn.cancel {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ── 스크롤 영역 ─────────────────────────── */
+    .gallery-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 24px 32px;
+    }
+
+    .gallery-scroll::-webkit-scrollbar { display: none; }
+
+    /* ── 날짜 섹션 ───────────────────────────── */
+    .date-section { margin-bottom: 24px; }
+
+    .date-label {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    /* ── 3컬럼 그리드 ────────────────────────── */
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      transition: opacity 0.15s;
+    }
+
+    /* 선택 모드 dim */
+    .select-mode .gallery-item.selected img { opacity: 1; }
+    .select-mode .gallery-item:not(.selected) img { opacity: 0.5; }
+
+    .new-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--brand);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    /* 체크 아이콘 (선택모드에서만 표시) */
+    .check-icon {
+      display: none;
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.2);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-icon svg { display: none; }
+
+    .gallery-item.selected .check-icon {
+      background: #FF4589;
+      border-color: #FF4589;
+    }
+    .gallery-item.selected .check-icon svg { display: block; }
+
+    .select-mode .check-icon { display: flex; }
+    .select-mode .new-badge { display: none; }
+
+    /* ── 하단 삭제 바 ────────────────────────── */
+    .delete-bar {
+      display: none;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      padding: 16px 24px 32px;
+    }
+
+    .delete-bar.visible { display: block; }
+
+    .delete-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--brand);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-size: var(--text-base);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .delete-btn:disabled {
+      background: var(--bg-input);
+      color: var(--text-tertiary);
+      cursor: default;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      color: var(--text-tertiary);
+      font-size: var(--text-sm);
+      text-align: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <!-- 탑바 -->
+  <div class="result-header">
+    <button class="back-btn" onclick="location.href='fitting_room.html'" aria-label="뒤로">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- 타이틀 + 선택하기 -->
+  <div class="title-row">
+    <div class="title-main">가상피팅 갤러리</div>
+    <button class="select-btn" id="selectBtn" onclick="toggleSelectMode()">선택하기</button>
+  </div>
+
+  <!-- 갤러리 스크롤 -->
+  <div class="gallery-scroll" id="gallery">
+
+    <!-- 오늘 -->
+    <div class="date-section">
+      <div class="date-label">오늘</div>
+      <div class="date-grid">
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/8.png" alt="피팅 결과" />
+          <span class="new-badge">NEW</span>
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/7.png" alt="피팅 결과" />
+          <span class="new-badge">NEW</span>
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2025년 2월 28일 -->
+    <div class="date-section">
+      <div class="date-label">2025년 2월 28일</div>
+      <div class="date-grid">
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/9.png" alt="피팅 결과" />
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/10.png" alt="피팅 결과" />
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/12.png" alt="피팅 결과" />
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/13.png" alt="피팅 결과" />
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2025년 2월 20일 -->
+    <div class="date-section">
+      <div class="date-label">2025년 2월 20일</div>
+      <div class="date-grid">
+        <div class="gallery-item" onclick="toggleSelect(this)">
+          <img src="image/14.png" alt="피팅 결과" />
+          <div class="check-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 빈 상태 -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 256 256" style="color:var(--text-tertiary);margin-bottom:12px;"><rect width="256" height="256" fill="none"/><rect x="64" y="48" width="160" height="128" rx="8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><circle cx="172" cy="84" r="12" fill="currentColor"/><path d="M64,128.69l38.34-38.35a8,8,0,0,1,11.32,0L163.31,140,189,114.34a8,8,0,0,1,11.31,0L224,138.06" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M192,176v24a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8H64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+      <p>제작된 AI 가상 피팅 사진이 없어요</p>
+    </div>
+
+  </div>
+
+  <!-- 하단 삭제 바 -->
+  <div class="delete-bar" id="deleteBar">
+    <button class="delete-btn" id="deleteBtn" disabled onclick="deleteSelected()">삭제하기</button>
+  </div>
+
+</div>
+<script>
+  let selectMode = false;
+
+  function toggleSelectMode() {
+    selectMode = !selectMode;
+    const phone = document.getElementById('phone');
+    const btn = document.getElementById('selectBtn');
+    const bar = document.getElementById('deleteBar');
+
+    if (selectMode) {
+      phone.classList.add('select-mode');
+      btn.textContent = '취소';
+      btn.classList.add('cancel');
+      bar.classList.add('visible');
+    } else {
+      phone.classList.remove('select-mode');
+      btn.textContent = '선택하기';
+      btn.classList.remove('cancel');
+      bar.classList.remove('visible');
+      document.querySelectorAll('.gallery-item.selected').forEach(el => el.classList.remove('selected'));
+      updateDeleteBtn();
+    }
+  }
+
+  function toggleSelect(el) {
+    if (!selectMode) {
+      location.href = 'gallary_detail.html';
+      return;
+    }
+    el.classList.toggle('selected');
+    updateDeleteBtn();
+  }
+
+  function updateDeleteBtn() {
+    const count = document.querySelectorAll('.gallery-item.selected').length;
+    const btn = document.getElementById('deleteBtn');
+    btn.disabled = count === 0;
+    btn.textContent = count > 0 ? `삭제하기 (${count})` : '삭제하기';
+  }
+
+  function deleteSelected() {
+    document.querySelectorAll('.gallery-item.selected').forEach(el => el.remove());
+    // 빈 날짜 섹션 제거
+    document.querySelectorAll('.date-section').forEach(section => {
+      if (section.querySelectorAll('.gallery-item').length === 0) section.remove();
+    });
+    toggleSelectMode();
+    // 전체 비었으면 빈 상태 표시
+    if (document.querySelectorAll('.gallery-item').length === 0) {
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('selectBtn').style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>

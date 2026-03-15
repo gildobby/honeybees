@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>온라인 피팅룸</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── 탑바 (onboarding_loading 동일) ─────── */
+    .result-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 24px;
+    }
+
+    .result-header svg.logo {
+      height: 20px;
+      width: auto;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .icon-btn:hover { background: var(--bg-chip); border-radius: 8px; }
+
+    .avatar-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    /* ── 타이틀 영역 ────────────────────────── */
+    .title-block {
+      padding: 0px 24px 10px;
+    }
+
+    .title-greeting {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .title-main {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+
+    /* ── 스크롤 영역 ────────────────────────── */
+    .page-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 40px;
+    }
+
+    .page-scroll::-webkit-scrollbar { display: none; }
+
+    /* ── 메인 피팅 카드 ─────────────────────── */
+    .fitting-card {
+      margin: 0 20px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      position: relative;
+      background: #f5f0ee;
+    }
+
+    .fitting-card img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .ai-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-pill);
+      padding: 5px 12px 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--brand);
+    }
+
+    .zoom-btn {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border: none;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: background 0.15s;
+    }
+
+    .zoom-btn:hover { background: #fff; }
+
+    /* ── 섹션 공통 ──────────────────────────── */
+    .section {
+      padding: 0 20px;
+    }
+
+    .section-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .more-link {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── 선택된 상품 카드 ───────────────────── */
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      padding: 14px;
+    }
+
+    .product-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .product-card-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .product-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      flex-shrink: 0;
+      overflow: hidden;
+      background: #ffffff;
+      position: relative;
+    }
+
+    .product-thumb-check {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .price-original {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .price-final {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .discount-chip {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .buy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 47px;
+      padding: 0;
+      background: var(--brand);
+      border: none;
+      border-radius: var(--radius);
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: opacity 0.15s;
+    }
+
+    .buy-btn:hover { opacity: 0.88; }
+    .buy-btn:disabled { background: var(--border); color: var(--text-tertiary); cursor: not-allowed; opacity: 1; }
+
+    .chip {
+      display: inline-block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--brand);
+      background: var(--bg-input);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .size-chip {
+      margin-top: 2px;
+    }
+
+    /* ── 선택된 상품 카드 ───────────────────── */
+    .selected-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .product-thumb-lg {
+      width: 96px;
+      height: 96px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      flex-shrink: 0;
+      overflow: hidden;
+      background: #fff;
+      position: relative;
+    }
+
+    .product-thumb-lg img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .selected-chip-overlay {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(6px);
+      border-radius: var(--radius-pill);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    /* ── 추천 문구 ──────────────────────────── */
+    .rec-text-card {
+      background: rgba(255,69,137,0.04);
+      border: 1px solid rgba(255,69,137,0.12);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rec-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rec-text-body {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .rec-text-body strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* ── 추천 상품 캐러셀 ───────────────────── */
+    .carousel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 20px;
+      margin-top: 28px;
+    }
+
+    .carousel-arrows {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .carousel-arrow-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+
+    .carousel-arrow-btn:hover { background: var(--bg-input); }
+    .carousel-arrow-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .rec-scroll-wrap {
+      padding: 0 20px;
+      margin-top: 16px;
+    }
+
+    .rec-scroll {
+      display: flex;
+      gap: 8px;
+      scroll-behavior: smooth;
+      overflow-x: auto;
+    }
+
+    .rec-scroll::-webkit-scrollbar { display: none; }
+
+    .rec-card {
+      flex: 0 0 calc((100% - 24px) / 3);
+      cursor: pointer;
+    }
+
+    .rec-card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      background: #ffffff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+
+    .rec-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .size-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-pill);
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .rec-card-info {
+      padding: 8px 10px 10px;
+    }
+
+    .rec-card-name {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rec-card-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .rec-card-discount {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .rec-card-price {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .rec-size-chip {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* ── 하단 정보 배너 ──────────────────────── */
+    .info-banner {
+      margin: 20px 20px 0;
+      background: rgba(255, 69, 137, 0.06);
+      border: 1px solid rgba(255, 69, 137, 0.15);
+      border-radius: var(--radius);
+      padding: 14px 10px 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .info-banner-text {
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .info-banner-text strong {
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .info-banner-arrow {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+    }
+    /* ── 피팅 로딩 오버레이 ── */
+    .fitting-loading {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .fitting-loading.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .fitting-loading .bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .fitting-loading .dim {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 20, 20, 0.6);
+    }
+
+    .fitting-loading .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 40px;
+      text-align: center;
+    }
+
+    .fitting-loading-text {
+      color: #fff;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: -0.3px;
+    }
+
+    .dot-wrap {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      animation: dot-blink 1.4s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-blink {
+      0%, 80%, 100% { background: rgba(255,255,255,0.35); transform: scale(1); }
+      40%           { background: rgba(255,255,255,0.9);  transform: scale(1.3); }
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ── 탑바 (onboarding_loading 동일) ──────── -->
+  <div class="result-header">
+    <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.93 97.23">
+      <path fill="#ff8e9f" d="m124.05,8.6h18.2v70.29h-18.2v-25.64h-15.95v25.64h-18.2V8.6h18.2v27.94h15.95V8.6Zm48.49,15.31c8.76,0,14.84,1.92,18.25,5.76,3.41,3.84,5.11,10.67,5.11,20.5s-1.67,16.57-5.02,20.21c-3.35,3.65-9.42,5.47-18.2,5.47s-14.9-1.9-18.35-5.71c-3.44-3.81-5.16-10.58-5.16-20.31s1.7-16.48,5.12-20.26c3.41-3.78,9.49-5.67,18.25-5.67m4.46,36.49c.47-1.09.7-4.46.7-10.13s-.23-9.17-.7-10.51c-.47-1.34-1.99-2.02-4.55-2.02s-4.05.64-4.46,1.92c-.41,1.28-.61,4.71-.61,10.28s.27,8.98.8,10.23c.53,1.25,2.02,1.87,4.46,1.87s3.89-.54,4.36-1.63m70.61-31.21c-.94-1.92-2.41-3.34-4.41-4.27-2-.93-4.38-1.39-7.13-1.39s-5.05.32-6.9.96c-1.85.64-3.19,1.28-4.04,1.92-.84.64-1.96,1.63-3.33,2.98l-3-4.99h-15.2v50.99h18.2v-34.47c1-2.37,3.28-3.55,6.85-3.55,1.06,0,1.84.35,2.35,1.06.5.71.75,2.02.75,3.94v33.03h18.21v-32.65c0-3.07-.16-5.62-.47-7.64-.31-2.02-.94-3.98-1.88-5.91m50.2,24.39c-2.5,2.05-6.16,3.07-10.98,3.07h-11.64c0,1.92.44,3.43,1.32,4.51.56.71,1.88,1.06,3.94,1.06l6.1-.1c4.69,0,9.38-.35,14.07-1.06v12.1c-3.5,1.79-9.98,2.69-19.42,2.69h-7.79c-6.13,0-10.4-2.08-12.81-6.24-2.41-4.16-3.61-10.31-3.61-18.44s.73-14.03,2.2-17.72c1.47-3.68,3.67-6.18,6.62-7.49,2.94-1.31,6.98-1.97,12.1-1.97s8.98.19,11.55.58c2.56.38,4.85,1.25,6.85,2.59,2,1.34,3.38,3.26,4.13,5.76.75,2.5,1.13,6.05,1.13,10.66s-1.25,7.94-3.76,9.99m-15.2-9.6c.5-.58.75-1.57.75-2.98s-.17-2.45-.52-3.12c-.34-.67-1.41-1.01-3.19-1.01s-2.97.43-3.57,1.3c-.6.86-.89,2.77-.89,5.71v.96h5.44c.81,0,1.47-.29,1.97-.86m51.71,16.42c-2.25-.13-3.6-1.37-4.04-3.74l-5.72-32.26h-18.86l7.79,36.01c2.19,9.99,8.1,14.98,17.74,14.98l-4.49,21.54s17.46,3,20.17-9.8c2.71-12.79,12.37-62.73,12.37-62.73h-18.49l-6.47,36.01Zm62.12-36.78c6.44,0,10.74,2,12.9,6,2.16,4,3.24,10.71,3.24,20.12s-1.28,16.13-3.85,20.17c-2.57,4.03-6.66,6.05-12.29,6.05-2.57,0-4.72-.43-6.47-1.3-1.75-.86-3.69-2.19-5.82-3.98l-2.72,4.7h-15.58V0h18.2v26.5c3.57-1.92,7.7-2.88,12.39-2.88m-3,35.05c.62-1.47.94-4.69.94-9.65s-.31-8.21-.94-9.75c-.62-1.54-1.69-2.3-3.19-2.3-3.19,0-5.22.48-6.1,1.44v20.36c.81,1.41,2.84,2.11,6.1,2.11,1.5,0,2.57-.74,3.19-2.21m66.99-5.09c-2.5,2.05-6.16,3.07-10.98,3.07h-11.64c0,1.92.44,3.43,1.31,4.51.56.71,1.88,1.06,3.94,1.06l6.1-.1c4.69,0,9.38-.35,14.07-1.06v12.1c-3.5,1.79-9.98,2.69-19.42,2.69h-7.79c-6.13,0-10.4-2.08-12.81-6.24-2.41-4.16-3.61-10.31-3.61-18.44s.73-14.03,2.21-17.72c1.47-3.68,3.67-6.18,6.61-7.49,2.94-1.31,6.98-1.97,12.1-1.97s8.98.19,11.54.58c2.56.38,4.85,1.25,6.85,2.59,2,1.34,3.38,3.26,4.13,5.76.75,2.5,1.13,6.05,1.13,10.66s-1.25,7.94-3.76,9.99m-15.2-9.6c.5-.58.75-1.57.75-2.98s-.18-2.45-.52-3.12c-.34-.67-1.41-1.01-3.19-1.01s-2.97.43-3.57,1.3c-.59.86-.89,2.77-.89,5.71v.96h5.44c.81,0,1.47-.29,1.97-.86m66.34,9.6c-2.5,2.05-6.16,3.07-10.98,3.07h-11.64c0,1.92.44,3.43,1.31,4.51.56.71,1.88,1.06,3.94,1.06l6.1-.1c4.69,0,9.38-.35,14.08-1.06v12.1c-3.51,1.79-9.98,2.69-19.42,2.69h-7.79c-6.13,0-10.4-2.08-12.81-6.24-2.41-4.16-3.61-10.31-3.61-18.44s.73-14.03,2.2-17.72c1.47-3.68,3.67-6.18,6.61-7.49,2.94-1.31,6.98-1.97,12.11-1.97s8.98.19,11.54.58c2.56.38,4.85,1.25,6.85,2.59,2,1.34,3.38,3.26,4.13,5.76.75,2.5,1.13,6.05,1.13,10.66s-1.25,7.94-3.75,9.99m-15.2-9.6c.5-.58.75-1.57.75-2.98s-.18-2.45-.52-3.12c-.34-.67-1.41-1.01-3.19-1.01s-2.97.43-3.56,1.3c-.59.86-.89,2.77-.89,5.71v.96h5.44c.81,0,1.47-.29,1.97-.86m67.23,1.97c-2.22-2.53-5.8-3.79-10.74-3.79h-10.51c-.63-.13-.94-.64-.94-1.54v-.57c0-.58.11-1.01.33-1.3.22-.29.8-.43,1.73-.43h21.02v-10.95c-.94-1.15-2.93-2.02-5.96-2.59-3.03-.58-10.49-.86-22.38-.86-4.5,0-7.79,1.34-9.85,4.03-2.07,2.69-3.1,6.21-3.1,10.56v4.42c0,4.8,1.33,8.44,3.99,10.9,2.66,2.47,6.27,3.7,10.84,3.7h9.01c.69,0,1.14.13,1.36.38.22.25.33.7.33,1.34v.48c0,.58-.09.99-.28,1.25-.19.26-.66.39-1.41.39h-21.77v10.95c.94,1.15,2.89,2,5.87,2.54,2.97.54,5.77.85,8.4.91s5.63.1,9.01.1h6.19c3.38,0,6.26-1.15,8.63-3.46,2.38-2.3,3.57-5.89,3.57-10.75v-5.67c0-4.16-1.11-7.5-3.33-10.03m-521.55,2.87c4.97-4.97,4.97-13.03,0-18-4.97-4.97-13.03-4.97-18,0-4.96,4.96-4.97,13-.02,17.97.02,0,.04,0,.04,0,0,0,0,.01,0,.04,4.97,4.95,13.01,4.94,17.97-.02m20.32-20.33c4.97-4.97,4.97-13.03,0-17.99-4.97-4.97-13.03-4.97-17.99,0-4.97,4.97-2.3,20.29-2.3,20.29,0,0,15.32,2.67,20.29-2.3m-38.34,20.3c-.83-.14-15.47-2.48-20.3,2.35-4.97,4.97-4.97,13.03,0,18,4.97,4.97,13.02,4.97,17.99,0,4.83-4.83,2.49-19.47,2.35-20.3,0,0-.01-.01-.02-.02,0,0-.01-.02-.02-.02m20.35,2.35c-4.97,4.97-4.97,13.03,0,18,4.97,4.97,24.31,6.32,24.31,6.32,0,0-1.35-19.34-6.32-24.31-4.97-4.97-13.02-4.97-17.99,0m-22.66-22.65c4.97-4.97,4.97-13.03,0-18-4.97-4.97-13.02-4.97-17.99,0-4.97,4.97-4.97,13.03,0,18,4.97,4.97,13.02,4.97,17.99,0"/>
+    </svg>
+    <div class="header-right">
+      <button class="icon-btn" aria-label="이미지" onclick="location.href='gallary.html'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><rect x="64" y="48" width="160" height="128" rx="8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><circle cx="172" cy="84" r="12" fill="currentColor"/><path d="M64,128.69l38.34-38.35a8,8,0,0,1,11.32,0L163.31,140,189,114.34a8,8,0,0,1,11.31,0L224,138.06" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M192,176v24a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8H64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+      </button>
+      <button class="avatar-btn" onclick="location.href='mypage.html'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16">
+          <circle cx="128" cy="96" r="64"/>
+          <path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 스크롤 콘텐츠 ─────────────────────── -->
+  <div class="page-scroll">
+
+    <!-- 타이틀 -->
+    <div class="title-block">
+<div class="title-main">고민 중인 이 옷,</div>
+      <div class="title-main">유길정님 체형에는 이런 느낌이에요!</div>
+    </div>
+
+    <!-- 메인 피팅 카드 -->
+    <div class="fitting-card">
+      <img id="fittingImg" src="image/7.png" alt="유길정님 AI 추천 착장" />
+      <!-- 피팅 로딩 오버레이 -->
+      <div class="fitting-loading" id="fittingLoading">
+        <img class="bg" src="image/6.png" alt="" />
+        <div class="dim"></div>
+        <div class="content">
+          <div class="dot-wrap">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <p class="fitting-loading-text">가상 피팅을 진행 중이에요.<br>잠시만 기다려주세요!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 선택된 상품 -->
+    <div class="section" style="margin-top:14px;">
+      <div class="product-card-row">
+        <div class="product-thumb-lg">
+          <img id="selImg" src="image/1.png" alt="" />
+        </div>
+        <div class="product-info">
+          <div class="product-name" id="selName">로즈 포인트 니트 투피스</div>
+          <div class="price-row" style="margin-top:4px;">
+            <span class="discount-chip" id="selDiscount">55%</span>
+            <span class="price-final" id="selPrice">13,200원</span>
+          </div>
+          <span class="chip size-chip" id="selSize" style="color:var(--text-secondary); margin-top:6px;">M 추천</span>
+        </div>
+      </div>
+      <button class="buy-btn" id="buyBtn" disabled>구매하기</button>
+    </div>
+
+    <!-- 추천 섹션 타이틀 + 화살표 -->
+    <div class="carousel-header">
+      <div>
+        <div class="title-main" style="font-size:var(--text-md);">유길정님 체형에 잘 맞는</div>
+        <div class="title-main" style="font-size:var(--text-md); margin-top:2px;">이 옷들도 가상 피팅해볼까요?</div>
+      </div>
+      <div class="carousel-arrows">
+        <button class="carousel-arrow-btn" id="prevBtn" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="carousel-arrow-btn" id="nextBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 추천 상품 캐러셀 -->
+    <div class="rec-scroll-wrap">
+      <div class="rec-scroll" id="recScroll">
+
+        <div class="rec-card" onclick="selectProduct(this)"
+          data-thumb="image/4.png"
+          data-result="image/8.png"
+          data-name="빈티지 플라워 니트 가디건"
+          data-discount="48%"
+          data-price="29,800원"
+          data-size="M 추천">
+          <div class="rec-card-img">
+            <img src="image/4.png" alt="빈티지 플라워 니트 가디건" />
+          </div>
+          <div class="rec-card-info">
+            <div class="rec-card-name">빈티지 플라워 니트 가디건</div>
+            <div class="rec-card-price-row">
+              <span class="rec-card-discount">48%</span>
+              <span class="rec-card-price">29,800</span>
+            </div>
+            <span class="chip rec-size-chip">M 추천</span>
+          </div>
+        </div>
+
+        <div class="rec-card">
+          <div class="rec-card-img">
+            <img src="image/2.png" alt="브라운 클래식 트위드 숏자켓" />
+          </div>
+          <div class="rec-card-info">
+            <div class="rec-card-name">브라운 클래식 트위드 숏자켓</div>
+            <div class="rec-card-price-row">
+              <span class="rec-card-discount">36%</span>
+              <span class="rec-card-price">41,200</span>
+            </div>
+            <span class="chip rec-size-chip">M 추천</span>
+          </div>
+        </div>
+
+        <div class="rec-card">
+          <div class="rec-card-img">
+            <img src="image/3.png" alt="소프트 핑크 자켓" />
+          </div>
+          <div class="rec-card-info">
+            <div class="rec-card-name">소프트 핑크 자켓</div>
+            <div class="rec-card-price-row">
+              <span class="rec-card-discount">42%</span>
+              <span class="rec-card-price">35,600</span>
+            </div>
+            <span class="chip rec-size-chip">M 추천</span>
+          </div>
+        </div>
+
+        <div class="rec-card">
+          <div class="rec-card-img">
+            <img src="image/1.png" alt="로즈 포인트 니트 투피스" />
+          </div>
+          <div class="rec-card-info">
+            <div class="rec-card-name">로즈 포인트 니트 투피스</div>
+            <div class="rec-card-price-row">
+              <span class="rec-card-discount">55%</span>
+              <span class="rec-card-price">13,200</span>
+            </div>
+            <span class="chip rec-size-chip">M 추천</span>
+          </div>
+        </div>
+
+        <div class="rec-card">
+          <div class="rec-card-img">
+            <img src="image/4.png" alt="하트 패턴 가디건" />
+          </div>
+          <div class="rec-card-info">
+            <div class="rec-card-name">하트 패턴 가디건</div>
+            <div class="rec-card-price-row">
+              <span class="rec-card-discount">30%</span>
+              <span class="rec-card-price">44,800</span>
+            </div>
+            <span class="chip rec-size-chip">S 추천</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 하단 정보 배너 -->
+
+    <div class="info-banner">
+      <div class="info-banner-text">
+        체형 정보를 모두 입력하면 가상피팅에서<br>
+        <strong>실제에 가까운 핏을 확인할 수 있어요!</strong>
+      </div>
+      <button class="info-banner-arrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+
+  </div><!-- /page-scroll -->
+
+</div><!-- /phone -->
+
+<script>
+  const scroll = document.getElementById('recScroll');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function getPageStep() {
+    const card = scroll.querySelector('.rec-card');
+    if (!card) return 300;
+    const visibleCount = Math.round(scroll.offsetWidth / (card.offsetWidth + 12));
+    return (card.offsetWidth + 12) * visibleCount;
+  }
+
+  function updateButtons() {
+    prevBtn.disabled = scroll.scrollLeft <= 0;
+    nextBtn.disabled = scroll.scrollLeft + scroll.offsetWidth >= scroll.scrollWidth - 1;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    scroll.scrollLeft -= getPageStep();
+    setTimeout(updateButtons, 350);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    scroll.scrollLeft += getPageStep();
+    setTimeout(updateButtons, 350);
+  });
+
+  scroll.addEventListener('scroll', updateButtons);
+  updateButtons();
+
+  // 초기 로딩 2.5초 후 숨기고 구매하기 버튼 활성화
+  setTimeout(() => {
+    document.getElementById('fittingLoading').classList.add('hide');
+    document.getElementById('buyBtn').disabled = false;
+  }, 2500);
+
+  // 캐러셀 상품 선택 시 로딩 + 피팅 이미지/상품 정보 교체
+  function selectProduct(card) {
+    const loading = document.getElementById('fittingLoading');
+    const buyBtn = document.getElementById('buyBtn');
+    if (!loading.classList.contains('hide')) return;
+
+    const { thumb, result, name, discount, price, size } = card.dataset;
+
+    // 현재 착장 이미지를 로딩 오버레이 배경으로 사용
+    loading.querySelector('.bg').src = document.getElementById('fittingImg').src;
+    loading.classList.remove('hide');
+    buyBtn.disabled = true;
+
+    setTimeout(() => {
+      document.getElementById('fittingImg').src = result;
+      document.getElementById('selImg').src = thumb;
+      document.getElementById('selName').textContent = name;
+      document.getElementById('selDiscount').textContent = discount;
+      document.getElementById('selPrice').textContent = price;
+      document.getElementById('selSize').textContent = size;
+
+      const next = { thumb: 'image/5.png', result: 'image/7.png', name: '플라워 플리츠 니트 세트', discount: '40%', price: '52,000원', size: 'M 추천' };
+      card.dataset.thumb    = next.thumb;
+      card.dataset.result   = next.result;
+      card.dataset.name     = next.name;
+      card.dataset.discount = next.discount;
+      card.dataset.price    = next.price;
+      card.dataset.size     = next.size;
+      card.querySelector('.rec-card-img img').src = next.thumb;
+      card.querySelector('.rec-card-name').textContent = next.name;
+      card.querySelector('.rec-card-discount').textContent = next.discount;
+      card.querySelector('.rec-card-price').textContent = next.price.replace('원','');
+      card.querySelector('.rec-size-chip').textContent = next.size;
+
+      loading.classList.add('hide');
+      buyBtn.disabled = false;
+    }, 2500);
+  }
+</script>
+</body>
+</html>

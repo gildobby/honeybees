@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>체형 정보 수정</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 폰 컨테이너 ── */
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── 상단 고정 헤더 ── */
+    .card-header {
+      flex-shrink: 0;
+      padding: 0 20px;
+      background: var(--bg-card);
+      z-index: 10;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      height: 56px;
+    }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      border-radius: 8px;
+      transition: background 0.15s;
+      margin-left: -4px;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); }
+
+    .card-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── 스크롤 영역 ── */
+    .form-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 20px 0;
+    }
+
+    .form-scroll::-webkit-scrollbar { display: none; }
+
+    /* ── 필드 그룹 ── */
+    .field-group {
+      margin-bottom: 20px;
+    }
+
+    .field-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .field-label .required {
+      color: var(--brand);
+      font-size: 13px;
+    }
+
+    .field-label .optional {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-tertiary);
+      margin-left: 2px;
+    }
+
+    /* ── 입력창 공통 ── */
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      height: 52px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 0 14px;
+      transition: border-color 0.15s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #1e1e1e;
+    }
+
+    .input-wrapper input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: var(--text-base);
+      font-family: inherit;
+      color: var(--text-primary);
+      outline: none;
+      min-width: 0;
+    }
+
+    .input-wrapper input::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    /* 숫자 스피너 제거 */
+    .input-wrapper input::-webkit-outer-spin-button,
+    .input-wrapper input::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; }
+    .input-wrapper input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+    .input-unit {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    /* ── 드롭다운 ── */
+    .select-wrapper {
+      position: relative;
+      height: 52px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+
+    .select-wrapper:focus-within {
+      border-color: #1e1e1e;
+    }
+
+    .select-wrapper select {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      font-size: var(--text-base);
+      font-family: inherit;
+      color: var(--text-primary);
+      padding: 0 40px 0 14px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .select-wrapper select option[value=""] {
+      color: var(--text-placeholder);
+    }
+
+    .select-chevron {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-tertiary);
+    }
+
+    /* ── 하단 저장 버튼 ── */
+    .cta-area {
+      flex-shrink: 0;
+      padding: 12px 20px 32px;
+      background: var(--bg-card);
+    }
+
+    .save-btn {
+      width: 100%;
+      height: 52px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--brand);
+      color: #fff;
+      font-size: var(--text-base);
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .save-btn:not(:disabled):hover  { opacity: 0.88; }
+    .save-btn:not(:disabled):active { opacity: 0.75; }
+
+    .save-btn:disabled {
+      background: var(--border);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    /* ── 토스트 ── */
+    .toast {
+      position: fixed;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      width: auto;
+      max-width: calc(100vw - 32px);
+      box-sizing: border-box;
+      background: #1e1e1e;
+      color: #fff;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ── 상단 고정 탑바 (뒤로가기만 고정) ── -->
+  <div class="card-header">
+    <div class="topbar">
+      <button class="back-btn" onclick="location.href='mypage.html'" aria-label="뒤로">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 스크롤 폼 영역 ── -->
+  <div class="form-scroll">
+
+    <!-- 타이틀 (스크롤 영역에 포함) -->
+    <h1 class="card-title" style="margin-bottom: 6px;">체형 정보 수정</h1>
+    <p class="card-desc" style="margin-bottom: 28px;">체형 정보를 모두 입력하면<br>실제에 가까운 핏을 확인할 수 있어요!</p>
+
+    <!-- 키 -->
+    <div class="field-group">
+      <div class="field-label">
+        키 <span class="required">*</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="height" inputmode="numeric" maxlength="3" placeholder="168" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 몸무게 -->
+    <div class="field-group">
+      <div class="field-label">
+        몸무게 <span class="required">*</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="weight" inputmode="numeric" maxlength="3" placeholder="57" />
+        <span class="input-unit">kg</span>
+      </div>
+    </div>
+
+    <!-- 상의 -->
+    <div class="field-group">
+      <div class="field-label">
+        상의 <span class="required">*</span>
+      </div>
+      <div class="select-wrapper">
+        <select id="topSize">
+          <option value="">자주 입는 상의 사이즈 선택</option>
+          <option value="90">90 (S)</option>
+          <option value="95">95 (M)</option>
+          <option value="100">100 (L)</option>
+          <option value="105">105 (XL)</option>
+          <option value="110">110 (2XL)</option>
+        </select>
+        <svg class="select-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 하의 -->
+    <div class="field-group">
+      <div class="field-label">
+        하의 <span class="required">*</span>
+      </div>
+      <div class="select-wrapper">
+        <select id="bottomSize">
+          <option value="">자주 입는 하의 사이즈 선택</option>
+          <option value="55">55</option>
+          <option value="66">66</option>
+          <option value="77">77</option>
+          <option value="88">88</option>
+        </select>
+        <svg class="select-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 가슴 둘레 -->
+    <div class="field-group">
+      <div class="field-label">
+        가슴 둘레 <span class="optional">(선택)</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="chest" inputmode="numeric" maxlength="3" placeholder="가슴 둘레를 입력하세요" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 어깨 너비 -->
+    <div class="field-group">
+      <div class="field-label">
+        어깨 너비 <span class="optional">(선택)</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="shoulder" inputmode="numeric" maxlength="3" placeholder="어깨 너비를 입력하세요" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 허리 둘레 -->
+    <div class="field-group">
+      <div class="field-label">
+        허리 둘레 <span class="optional">(선택)</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="waist" inputmode="numeric" maxlength="3" placeholder="허리 둘레를 입력하세요" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 엉덩이 둘레 -->
+    <div class="field-group">
+      <div class="field-label">
+        엉덩이 둘레 <span class="optional">(선택)</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="hip" inputmode="numeric" maxlength="3" placeholder="엉덩이 둘레를 입력하세요" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 허벅지 둘레 -->
+    <div class="field-group" style="margin-bottom: 0;">
+      <div class="field-label">
+        허벅지 둘레 <span class="optional">(선택)</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="thigh" inputmode="numeric" maxlength="3" placeholder="허벅지 둘레를 입력하세요" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- 버튼 가림 방지 여백 -->
+    <div style="height: 20px;"></div>
+
+  </div><!-- /form-scroll -->
+
+  <!-- ── 하단 고정 버튼 ── -->
+  <div class="cta-area">
+    <button class="save-btn" id="saveBtn">저장하기</button>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast">변경사항이 저장되었습니다</div>
+
+</div><!-- /phone -->
+
+<script>
+  // ── 임의 초기값 (localStorage 없을 때 데모 데이터) ──
+  const DEFAULT = {
+    height: '168', weight: '54',
+    topSize: '95', bottomSize: '66',
+    chest: '88', shoulder: '38',
+    waist: '68', hip: '92', thigh: '55',
+  };
+
+  const saved = JSON.parse(localStorage.getItem('honeyBizBody') || 'null') || DEFAULT;
+
+  // 입력 필드 초기값 설정
+  const textFields = ['height', 'weight', 'chest', 'shoulder', 'waist', 'hip', 'thigh'];
+  textFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && saved[id]) el.value = saved[id];
+  });
+
+  ['topSize', 'bottomSize'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && saved[id]) el.value = saved[id];
+  });
+
+  // 원본값 스냅샷
+  const allIds = [...textFields, 'topSize', 'bottomSize'];
+  const original = {};
+  allIds.forEach(id => {
+    original[id] = document.getElementById(id)?.value ?? '';
+  });
+
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+
+  // 변경 감지
+  function checkDirty() {
+    const changed = allIds.some(id => {
+      return (document.getElementById(id)?.value ?? '') !== original[id];
+    });
+    saveBtn.disabled = !changed;
+  }
+
+  // 숫자만 입력 + 변경 감지
+  textFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '');
+      checkDirty();
+    });
+  });
+
+  ['topSize', 'bottomSize'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', checkDirty);
+  });
+
+  // 저장하기
+  saveBtn.addEventListener('click', () => {
+    const data = {
+      height:     document.getElementById('height').value,
+      weight:     document.getElementById('weight').value,
+      topSize:    document.getElementById('topSize').value,
+      bottomSize: document.getElementById('bottomSize').value,
+      chest:      document.getElementById('chest').value,
+      shoulder:   document.getElementById('shoulder').value,
+      waist:      document.getElementById('waist').value,
+      hip:        document.getElementById('hip').value,
+      thigh:      document.getElementById('thigh').value,
+    };
+
+    if (!data.height || !data.weight || !data.topSize || !data.bottomSize) {
+      alert('필수 항목(키, 몸무게, 상의, 하의)을 모두 입력해주세요.');
+      return;
+    }
+
+    localStorage.setItem('honeyBizBody', JSON.stringify(data));
+
+    // 원본값 갱신 → 버튼 다시 disabled
+    allIds.forEach(id => {
+      original[id] = document.getElementById(id)?.value ?? '';
+    });
+    saveBtn.disabled = true;
+
+    // 토스트 표시
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1800);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+/* ═══════════════════════════════════════════════
+   허니비즈 디자인 토큰  ·  tokens.css
+   앞으로 모든 화면은 이 파일의 변수만 사용하세요
+═══════════════════════════════════════════════ */
+
+:root {
+
+  /* ── Font Sizes ──────────────────────────────
+     --text-xs      11px   배지, 아주 작은 보조 텍스트
+     --text-sm      13px   힌트, 스킵, 부가 설명
+     --text-base    14px   기본 본문, 라벨
+     --text-md      16px   버튼, 섹션 소제목
+     --text-lg      20px   서브 헤딩
+     --text-xl      24px   페이지 메인 타이틀
+     --text-2xl     28px   큰 강조 텍스트
+     --text-display 72px   측정값 숫자 표시
+  ─────────────────────────────────────────── */
+  --text-xs:      13px;
+  --text-sm:      15px;
+  --text-base:    16px;
+  --text-md:      18px;
+  --text-lg:      20px;
+  --text-xl:      24px;
+  --text-2xl:     28px;
+  --text-display: 72px;
+
+  /* ── Text Colors ──────────────────────────── */
+  --text-primary:     #1e1e1e;  /* 제목, 메인 텍스트     */
+  --text-secondary:   #888888;  /* 서브 설명, 캡션       */
+  --text-tertiary:    #bbbbbb;  /* 힌트, 비활성 안내     */
+  --text-placeholder: #cccccc;  /* Input placeholder    */
+  --text-inverse:     #ffffff;  /* 어두운 배경 위 텍스트 */
+
+  /* ── Brand ───────────────────────────────── */
+  --brand:       #FF4589;  /* 포인트, 활성, 강조    */
+  --brand-light: #ff8ab8;  /* 그라데이션 보조색     */
+
+  /* ── Dark Button ─────────────────────────── */
+  --btn-dark:       #111111;  /* Dark CTA 버튼 배경  */
+  --btn-dark-hover: #333333;  /* Dark CTA 호버      */
+
+  /* ── Surface / Background ───────────────── */
+  --bg-page:  #f8f8f8;  /* 전체 페이지 배경           */
+  --bg-card:  #ffffff;  /* 카드, 모달, 시트 배경       */
+  --bg-input: #f1f1f1;  /* 입력 필드 배경             */
+  --bg-chip:  #f2f2f2;  /* 칩, 선택 버튼 기본 배경    */
+
+  /* ── Border / Divider ───────────────────── */
+  --border:       #e0e0e0;  /* 입력 필드, 카드 테두리  */
+  --border-light: #f0f0f0;  /* 구분선, 옅은 테두리    */
+
+  /* ── Radius ──────────────────────────────
+     --radius       8px    카드, 버튼, 입력 필드 공통
+     --radius-pill  999px  pill 형태 칩/배지
+  ─────────────────────────────────────────── */
+  --radius:      8px;
+  --radius-pill: 999px;
+}
