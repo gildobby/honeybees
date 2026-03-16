@@ -34,24 +34,36 @@
     }
 
     @media (max-width: 500px) {
-      /* body를 fixed로 잠가서 iOS 자동 스크롤 완전 차단 */
       body {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         background: var(--bg-card);
       }
-      .container {
-        max-width: 100%;
-        height: 100%;
-        padding-bottom: 160px; /* fixed CTA 영역 확보 */
-      }
-      .cta-wrapper {
-        position: fixed;
-        left: 0; right: 0; bottom: 0;
-        padding-left: 20px;
-        padding-right: 20px;
-        background: var(--bg-card);
-      }
+      .container { max-width: 100%; height: 100%; }
+    }
+
+    .done-toolbar {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 44px;
+      background: #d1d1d6;
+      border-top: 1px solid #aaa;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px;
+      z-index: 200;
+    }
+    .done-toolbar.active { display: flex; }
+    .done-toolbar-btn {
+      background: none;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: #007aff;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: inherit;
     }
 
     .top-nav { margin-bottom: 20px; }
@@ -233,6 +245,11 @@
     </div>
 
   </div>
+
+  <div class="done-toolbar" id="doneToolbar">
+    <button class="done-toolbar-btn" id="doneToolbarBtn" type="button">완료</button>
+  </div>
+
   <script>
     const input = document.getElementById('shoulder');
     const ctaBtn = document.getElementById('ctaBtn');
@@ -251,19 +268,21 @@
       window.location.href = 'onboarding_4.html';
     });
 
-    const ctaWrapper = document.querySelector('.cta-wrapper');
     const isMobile = window.matchMedia('(max-width: 500px)').matches;
 
-    if (isMobile && window.visualViewport) {
-      const update = () => {
-        const vv = window.visualViewport;
-        // body가 fixed이므로 vv.offsetTop은 항상 0 → 키보드 높이만 계산
-        const keyboardHeight = Math.max(0, window.innerHeight - vv.height);
-        const keyboardOpen = vv.height < window.innerHeight * 0.85;
-        ctaWrapper.style.bottom = keyboardHeight + 'px';
-        ctaWrapper.style.paddingBottom = keyboardOpen ? '8px' : '';
-      };
-      window.visualViewport.addEventListener('resize', update);
+    if (isMobile) {
+      const doneToolbar = document.getElementById('doneToolbar');
+      document.getElementById('doneToolbarBtn').addEventListener('click', () => input.blur());
+
+      input.addEventListener('focus', () => doneToolbar.classList.add('active'));
+      input.addEventListener('blur', () => doneToolbar.classList.remove('active'));
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          const keyboardHeight = Math.max(0, window.innerHeight - window.visualViewport.height);
+          doneToolbar.style.bottom = keyboardHeight + 'px';
+        });
+      }
     }
   </script>
 </body>
