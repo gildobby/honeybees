@@ -2,30 +2,23 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>어깨너비 입력</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="stylesheet" href="tokens.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      /* 기본 하단 여백: Safe Area + 32px */
-      --default-bottom-padding: calc(32px + env(safe-area-inset-bottom));
-    }
-
     html, body {
       height: 100%;
-      /* 키보드 대응을 위해 overflow: hidden 해제 혹은 최적화 */
-      overflow: hidden; 
-      position: fixed; /* 모바일에서 고무줄 스크롤 방지 */
-      width: 100%;
+      overflow: hidden;
     }
 
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg-page);
       display: flex;
+      align-items: center;
       justify-content: center;
     }
 
@@ -37,36 +30,269 @@
       display: flex;
       flex-direction: column;
       padding: 20px 20px 0;
-      position: relative;
+      overflow: hidden;
     }
 
-    .top-nav { margin-bottom: 20px; flex-shrink: 0; }
-    .step-dots { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-shrink: 0; }
-    .header { margin-bottom: 20px; flex-shrink: 0; }
-    
-    /* 입력 영역이 가변적으로 공간을 차지하도록 */
+    @media (max-width: 500px) {
+      body { background: var(--bg-card); }
+      .container { max-width: 100%; height: 100%; }
+    }
+
+    .done-toolbar {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 44px;
+      background: #d1d1d6;
+      border-top: 1px solid #aaa;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px;
+      z-index: 200;
+    }
+    .done-toolbar.active { display: flex; }
+    .done-toolbar-btn {
+      background: none;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: #007aff;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .top-nav { margin-bottom: 20px; }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -4px;
+      color: var(--text-primary);
+      border-radius: var(--radius);
+      transition: 0.15s;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); }
+
+    .step-dots {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .step-dot-item {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .step-dot-item.active {
+      width: 24px;
+      border-radius: var(--radius-pill);
+      background: var(--brand);
+    }
+
+    .header { margin-bottom: 48px; }
+
+    .header h1 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
     .input-area {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100px;
     }
 
-    /* 하단 버튼 영역 - 키보드에 따라 위치가 변함 */
-    .cta-wrapper {
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      bottom: var(--default-bottom-padding);
-      background: var(--bg-card);
-      transition: bottom 0.1s ease-out; /* 부드럽게 밀려 올라감 */
+    .big-input-wrap {
       display: flex;
-      flex-direction: column;
+      align-items: baseline;
       gap: 10px;
     }
 
-    /* 버튼 스타일 유지 */
-    .cta-btn, .unsure-btn {
+    .big-input-wrap input {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--text-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      width: 150px;
+      text-align: right;
+      background: transparent;
+      caret-color: var(--text-primary);
+    }
+
+    .big-input-wrap input::placeholder { color: var(--border); }
+
+    .big-input-wrap input::-webkit-outer-spin-button,
+    .big-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .unit {
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    .cta-wrapper {
+      flex-shrink: 0;
+      padding: 16px 0 calc(32px + env(safe-area-inset-bottom));
+      background: #fff;
+    }
+
+    .cta-btn {
       width: 100%;
-      height: 52px;
+      height: 47px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--btn-dark);
+      color: var(--text-inverse);
+      border: none;
+      border-radius: var(--radius);
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cta-btn:disabled {
+      background: var(--border);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    .cta-btn:not(:disabled):hover { background: var(--btn-dark-hover); }
+
+    .unsure-btn {
+      width: 100%;
+      height: 47px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-primary);
+      font-size: var(--text-base);
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 10px;
+    }
+    .unsure-btn:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="top-nav">
+      <button class="back-btn" onclick="window.location.href='onboarding_2.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item active"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+    </div>
+
+    <div class="header">
+      <h1>어깨너비를 입력해주세요</h1>
+      <p>상의 핏을 더 정확하게 맞추는 데 도움이 돼요</p>
+    </div>
+
+    <div class="input-area">
+      <div class="big-input-wrap">
+        <input type="text" id="shoulder" placeholder="38" inputmode="numeric" maxlength="3" />
+        <span class="unit">cm</span>
+      </div>
+    </div>
+
+    <div class="cta-wrapper">
+      <button class="unsure-btn" id="unsureBtn">잘 모르겠어요</button>
+      <button class="cta-btn" id="ctaBtn" disabled>다음</button>
+    </div>
+
+  </div>
+
+  <div class="done-toolbar" id="doneToolbar">
+    <button class="done-toolbar-btn" id="doneToolbarBtn" type="button">완료</button>
+  </div>
+
+  <script>
+    const input = document.getElementById('shoulder');
+    const ctaBtn = document.getElementById('ctaBtn');
+    const unsureBtn = document.getElementById('unsureBtn');
+
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '');
+      ctaBtn.disabled = !input.value.trim();
+    });
+
+    ctaBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_4.html';
+    });
+
+    unsureBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_4.html';
+    });
+
+    const isMobile = window.matchMedia('(max-width: 500px)').matches;
+
+    if (isMobile) {
+      // iOS 감지: 뷰포트가 안 줄어들고 페이지를 스크롤하는 방식
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (isIOS) {
+        // iOS만: html/body 고정으로 자동 스크롤 차단
+        document.documentElement.style.cssText += ';position:fixed;width:100%';
+        document.body.style.cssText += ';position:fixed;top:0;left:0;right:0;bottom:0';
+        window.addEventListener('scroll', () => window.scrollTo(0, 0));
+      }
+
+      const doneToolbar = document.getElementById('doneToolbar');
+      document.getElementById('doneToolbarBtn').addEventListener('click', () => input.blur());
+
+      input.addEventListener('focus', () => doneToolbar.classList.add('active'));
+      input.addEventListener('blur', () => doneToolbar.classList.remove('active'));
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          // iOS: innerHeight 고정, vv.height 줄어듦 → 키보드 높이 계산
+          // Android: 둘 다 줄어들어 ≈0 → bottom:0 유지 (뷰포트 자체가 줄었으니 자연스럽게 키보드 위에 위치)
+          const keyboardHeight = Math.max(0, window.innerHeight - window.visualViewport.height);
+          doneToolbar.style.bottom = keyboardHeight + 'px';
+        });
+      }
+    }
+  </script>
+</body>
+</html>
