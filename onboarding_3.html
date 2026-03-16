@@ -12,7 +12,7 @@
     html, body {
       height: 100%;
       width: 100%;
-      overflow: hidden; /* 전체 페이지가 꿀렁거리며 스크롤되는 것 방지 */
+      overflow: hidden;
       background: var(--bg-page);
     }
 
@@ -30,10 +30,161 @@
       display: flex;
       flex-direction: column;
       padding: 20px 20px 0;
-      position: relative; /* 자식 요소인 cta-wrapper의 기준점 */
+      position: relative;
     }
 
-    /* 상단 내비 및 헤더 */
     .top-nav { margin-bottom: 20px; flex-shrink: 0; }
-    .back-btn { width: 32px; height: 32px; border: none; background: none; cursor: pointer; color: var(--text-primary); }
-    .step-dots { display: flex; gap: 8px; margin-bottom: 12
+    .step-dots { display: flex; gap: 8px; margin-bottom: 12px; }
+    .step-dot-item { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .step-dot-item.active { width: 24px; border-radius: 12px; background: var(--brand); }
+    .header { margin-bottom: 30px; flex-shrink: 0; }
+    .header h1 { font-size: var(--text-xl); font-weight: 600; line-height: 1.4; }
+    .header p { font-size: var(--text-base); color: var(--text-secondary); }
+
+    .input-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -60px;
+    }
+
+    .big-input-wrap { display: flex; align-items: baseline; gap: 10px; }
+    .big-input-wrap input {
+      font-size: var(--text-display);
+      font-weight: 700;
+      border: none;
+      outline: none;
+      width: 150px;
+      text-align: right;
+      background: transparent;
+    }
+
+    /* 네이티브 inputAccessoryView 느낌을 주는 버튼 컨테이너 */
+    .cta-wrapper {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-card);
+      /* 키보드가 올라왔을 때 배경색을 살짝 바꿔서 네이티브 느낌을 줄 수도 있음 */
+      border-top: 1px solid transparent; 
+      transition: transform 0.1s ease-out, padding 0.1s ease-out, border-color 0.1s;
+      z-index: 100;
+    }
+
+    /* 키보드가 올라갔을 때 적용될 클래스 */
+    .cta-wrapper.keyboard-up {
+      padding-bottom: 16px; /* 키보드 위에서는 safe-area 무시 */
+      border-top-color: #eee;
+      box-shadow: 0 -10px 20px rgba(0,0,0,0.03);
+    }
+
+    .cta-btn, .unsure-btn {
+      width: 100%;
+      height: 50px;
+      border-radius: var(--radius);
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cta-btn { background: var(--btn-dark); color: var(--text-inverse); border: none; }
+    .cta-btn:disabled { background: var(--border); color: var(--text-tertiary); }
+    .unsure-btn { border: 1.5px solid var(--border); background: #fff; color: var(--text-primary); }
+
+    /* iOS 완료 툴바 (inputAccessoryView의 상단 바 역할) */
+    .done-toolbar {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      height: 44px;
+      background: #f1f1f4;
+      border-top: 1px solid #ccc;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px;
+      z-index: 200;
+    }
+    .done-toolbar.active { display: flex; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-nav">
+      <button class="back-btn" onclick="history.back()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    
+    <div class="header">
+      <h1>어깨너비를 입력해주세요</h1>
+      <p>상의 핏을 더 정확하게 맞추는 데 도움이 돼요</p>
+    </div>
+
+    <div class="input-area">
+      <div class="big-input-wrap">
+        <input type="text" id="shoulder" placeholder="38" inputmode="numeric" maxlength="3" />
+        <span class="unit">cm</span>
+      </div>
+    </div>
+
+    <div class="cta-wrapper" id="ctaWrapper">
+      <button class="unsure-btn" onclick="location.href='onboarding_4.html'">잘 모르겠어요</button>
+      <button class="cta-btn" id="ctaBtn" disabled onclick="location.href='onboarding_4.html'">다음</button>
+    </div>
+  </div>
+
+  <div class="done-toolbar" id="doneToolbar">
+    <button style="color:#007aff; font-size:17px; font-weight:600; background:none; border:none;" onclick="document.getElementById('shoulder').blur()">완료</button>
+  </div>
+
+  <script>
+    const input = document.getElementById('shoulder');
+    const ctaBtn = document.getElementById('ctaBtn');
+    const ctaWrapper = document.getElementById('ctaWrapper');
+    const doneToolbar = document.getElementById('doneToolbar');
+
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '');
+      ctaBtn.disabled = !input.value.trim();
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        const vv = window.visualViewport;
+        const keyboardHeight = window.innerHeight - vv.height;
+
+        if (keyboardHeight > 100) { 
+          // 1. 네이티브 inputAccessoryView처럼 '완료' 바 띄우기
+          doneToolbar.classList.add('active');
+          doneToolbar.style.bottom = keyboardHeight + 'px';
+
+          // 2. 버튼 컨테이너를 완료 바 위로 '트랜스폼'
+          // transform을 사용하면 레이아웃 계산이 빨라 더 부드럽게 따라옵니다.
+          ctaWrapper.classList.add('keyboard-up');
+          ctaWrapper.style.transform = `translateY(-${keyboardHeight + 44}px)`;
+        } else {
+          // 복구
+          doneToolbar.classList.remove('active');
+          ctaWrapper.classList.remove('keyboard-up');
+          ctaWrapper.style.transform = `translateY(0)`;
+        }
+      });
+    }
+
+    input.addEventListener('focus', () => {
+      setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    });
+  </script>
+</body>
+</html>
