@@ -38,8 +38,16 @@
       .container {
         position: fixed;
         top: 0; left: 0; right: 0;
+        height: 100dvh;
         max-width: 100%;
-        /* height, top은 JS로 제어 */
+        padding-bottom: 160px; /* fixed CTA 높이만큼 여백 확보 */
+      }
+      .cta-wrapper {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        padding-left: 20px;
+        padding-right: 20px;
+        background: var(--bg-card);
       }
     }
 
@@ -240,22 +248,20 @@
       window.location.href = 'onboarding_4.html';
     });
 
-    const container = document.querySelector('.container');
     const ctaWrapper = document.querySelector('.cta-wrapper');
     const isMobile = window.matchMedia('(max-width: 500px)').matches;
 
     if (isMobile && window.visualViewport) {
       const update = () => {
         const vv = window.visualViewport;
+        // 키보드가 차지하는 높이 = 윈도우 전체 - 비주얼뷰포트 오프셋 - 비주얼뷰포트 높이
+        const bottomOffset = window.innerHeight - vv.offsetTop - vv.height;
         const keyboardOpen = vv.height < window.innerHeight * 0.85;
-        container.style.height = vv.height + 'px';
-        container.style.top = vv.offsetTop + 'px';
-        // 키보드 열리면 padding-bottom 줄여서 버튼 바로 위에 붙임
+        ctaWrapper.style.bottom = Math.max(0, bottomOffset) + 'px';
         ctaWrapper.style.paddingBottom = keyboardOpen ? '8px' : '';
       };
       window.visualViewport.addEventListener('resize', update);
       window.visualViewport.addEventListener('scroll', update);
-      update();
     }
   </script>
 </body>
