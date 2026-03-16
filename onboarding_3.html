@@ -240,7 +240,9 @@
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', () => {
         const h = window.visualViewport.height;
-        container.style.height = h < baseHeight * 0.85 ? h + 'px' : '';
+        const keyboardOpen = h < baseHeight * 0.85;
+        container.style.height = keyboardOpen ? h + 'px' : '';
+        document.body.style.alignItems = keyboardOpen ? 'flex-start' : '';
       });
     }
   </script>
