@@ -273,9 +273,6 @@
       flex-shrink: 0;
       padding: 20px 0 calc(32px + env(safe-area-inset-bottom));
       background: #fff;
-      position: relative;
-      z-index: 10;
-      transition: transform 0.25s ease;
     }
 
     .cta-btn {
@@ -443,20 +440,17 @@
       });
     });
 
-    // 키보드 오픈 시 CTA 버튼 위로 올림
-    if (window.visualViewport) {
-      const ctaWrapper = document.querySelector('.cta-wrapper');
-      window.visualViewport.addEventListener('resize', () => {
-        const keyboardHeight = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
-        if (keyboardHeight > 0) {
-          ctaWrapper.style.transform = `translateY(-${keyboardHeight}px)`;
-          ctaWrapper.style.paddingBottom = '12px';
-        } else {
-          ctaWrapper.style.transform = '';
-          ctaWrapper.style.paddingBottom = '';
-        }
-      });
+    // 키보드 오픈 시 컨테이너 높이를 visible viewport에 맞춤
+    const container = document.querySelector('.container');
+    function adjustHeight() {
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      container.style.height = h + 'px';
     }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustHeight);
+      window.visualViewport.addEventListener('scroll', adjustHeight);
+    }
+    adjustHeight();
 
     ctaBtn.addEventListener('click', () => {
       const data = {
