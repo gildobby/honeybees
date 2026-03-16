@@ -241,15 +241,17 @@
     });
 
     const container = document.querySelector('.container');
+    const ctaWrapper = document.querySelector('.cta-wrapper');
     const isMobile = window.matchMedia('(max-width: 500px)').matches;
 
     if (isMobile && window.visualViewport) {
       const update = () => {
         const vv = window.visualViewport;
-        // height: 키보드 위 남은 공간에 맞춤
-        // top: iOS가 visual viewport를 스크롤해도 컨테이너가 따라가도록 보정
+        const keyboardOpen = vv.height < window.innerHeight * 0.85;
         container.style.height = vv.height + 'px';
         container.style.top = vv.offsetTop + 'px';
+        // 키보드 열리면 padding-bottom 줄여서 버튼 바로 위에 붙임
+        ctaWrapper.style.paddingBottom = keyboardOpen ? '8px' : '';
       };
       window.visualViewport.addEventListener('resize', update);
       window.visualViewport.addEventListener('scroll', update);
