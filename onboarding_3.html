@@ -33,9 +33,15 @@
       overflow: hidden;
     }
 
+    /* 모바일: position fixed로 뷰포트에 완전히 고정 */
     @media (max-width: 500px) {
-      body { align-items: stretch; justify-content: stretch; }
-      .container { max-width: 100%; }
+      body { background: var(--bg-card); }
+      .container {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        max-width: 100%;
+        height: 100%; /* JS가 visualViewport.height로 업데이트 */
+      }
     }
 
     .top-nav { margin-bottom: 20px; }
@@ -236,14 +242,14 @@
     });
 
     const container = document.querySelector('.container');
-    const baseHeight = window.innerHeight;
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => {
-        const h = window.visualViewport.height;
-        const keyboardOpen = h < baseHeight * 0.85;
-        container.style.height = keyboardOpen ? h + 'px' : '';
-        document.body.style.alignItems = keyboardOpen ? 'flex-start' : '';
-      });
+    const isMobile = window.matchMedia('(max-width: 500px)').matches;
+
+    if (isMobile && window.visualViewport) {
+      const update = () => {
+        container.style.height = window.visualViewport.height + 'px';
+      };
+      window.visualViewport.addEventListener('resize', update);
+      update(); // 초기 높이 설정
     }
   </script>
 </body>
