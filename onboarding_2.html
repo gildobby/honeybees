@@ -9,23 +9,28 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg-page);
-      height: 100vh;
-      height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
     .container {
       background: var(--bg-card);
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
       max-width: 390px;
-      height: 100vh;
-      height: 100dvh;
+      height: 100%;
       display: flex;
       flex-direction: column;
       padding: 20px 20px 0;
@@ -33,8 +38,8 @@
     }
 
     @media (max-width: 500px) {
-      body { align-items: stretch; justify-content: stretch; }
-      .container { max-width: 100%; }
+      body { background: var(--bg-card); }
+      .container { max-width: 100%; height: 100%; }
     }
 
     .top-nav { margin-bottom: 20px; }
@@ -184,7 +189,7 @@
   <div class="container">
 
     <div class="top-nav">
-      <button class="back-btn" onclick="window.location.href='onboarding.html'">
+      <button class="back-btn" onclick="window.location.href='onboarding_1.html'">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -234,16 +239,20 @@
       window.location.href = 'onboarding_3.html';
     });
 
-    const container = document.querySelector('.container');
-    function adjustHeight() {
-      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      container.style.height = h + 'px';
+    const isMobile = window.matchMedia('(max-width: 500px)').matches;
+
+    if (isMobile) {
+      const container = document.querySelector('.container');
+      if (window.visualViewport) {
+        const updateLayout = () => {
+          const vp = window.visualViewport;
+          container.style.height = vp.height + 'px';
+          container.style.top = vp.offsetTop + 'px';
+        };
+        window.visualViewport.addEventListener('resize', updateLayout);
+        window.visualViewport.addEventListener('scroll', updateLayout);
+      }
     }
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', adjustHeight);
-      window.visualViewport.addEventListener('scroll', adjustHeight);
-    }
-    adjustHeight();
   </script>
 </body>
 </html>
