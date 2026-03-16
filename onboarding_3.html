@@ -33,14 +33,13 @@
       overflow: hidden;
     }
 
-    /* 모바일: position fixed로 뷰포트에 완전히 고정 */
     @media (max-width: 500px) {
       body { background: var(--bg-card); }
       .container {
         position: fixed;
         top: 0; left: 0; right: 0;
         max-width: 100%;
-        height: 100%; /* JS가 visualViewport.height로 업데이트 */
+        /* height, top은 JS로 제어 */
       }
     }
 
@@ -246,10 +245,15 @@
 
     if (isMobile && window.visualViewport) {
       const update = () => {
-        container.style.height = window.visualViewport.height + 'px';
+        const vv = window.visualViewport;
+        // height: 키보드 위 남은 공간에 맞춤
+        // top: iOS가 visual viewport를 스크롤해도 컨테이너가 따라가도록 보정
+        container.style.height = vv.height + 'px';
+        container.style.top = vv.offsetTop + 'px';
       };
       window.visualViewport.addEventListener('resize', update);
-      update(); // 초기 높이 설정
+      window.visualViewport.addEventListener('scroll', update);
+      update();
     }
   </script>
 </body>
