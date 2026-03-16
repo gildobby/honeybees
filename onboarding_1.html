@@ -448,7 +448,13 @@
       const ctaWrapper = document.querySelector('.cta-wrapper');
       window.visualViewport.addEventListener('resize', () => {
         const keyboardHeight = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
-        ctaWrapper.style.transform = keyboardHeight > 0 ? `translateY(-${keyboardHeight}px)` : '';
+        if (keyboardHeight > 0) {
+          ctaWrapper.style.transform = `translateY(-${keyboardHeight}px)`;
+          ctaWrapper.style.paddingBottom = '12px';
+        } else {
+          ctaWrapper.style.transform = '';
+          ctaWrapper.style.paddingBottom = '';
+        }
       });
     }
 
