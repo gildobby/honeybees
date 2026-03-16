@@ -2,128 +2,231 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>어깨너비 입력</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="stylesheet" href="tokens.css" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       height: 100%;
-      width: 100%;
       overflow: hidden;
-      background: var(--bg-page);
     }
 
     body {
-      font-family: 'Pretendard', sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
       display: flex;
+      align-items: center;
       justify-content: center;
     }
 
     .container {
       background: var(--bg-card);
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
       max-width: 390px;
       height: 100%;
       display: flex;
       flex-direction: column;
       padding: 20px 20px 0;
-      position: relative;
+      overflow: hidden;
     }
 
-    .top-nav { margin-bottom: 20px; flex-shrink: 0; }
-    .step-dots { display: flex; gap: 8px; margin-bottom: 12px; }
-    .step-dot-item { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-    .step-dot-item.active { width: 24px; border-radius: 12px; background: var(--brand); }
-    .header { margin-bottom: 30px; flex-shrink: 0; }
-    .header h1 { font-size: var(--text-xl); font-weight: 600; line-height: 1.4; }
-    .header p { font-size: var(--text-base); color: var(--text-secondary); }
-
-    .input-area {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: -60px;
+    @media (max-width: 500px) {
+      body { background: var(--bg-card); }
+      .container { max-width: 100%; height: 100%; }
     }
 
-    .big-input-wrap { display: flex; align-items: baseline; gap: 10px; }
-    .big-input-wrap input {
-      font-size: var(--text-display);
-      font-weight: 700;
-      border: none;
-      outline: none;
-      width: 150px;
-      text-align: right;
-      background: transparent;
-    }
-
-    /* 네이티브 inputAccessoryView 느낌을 주는 버튼 컨테이너 */
-    .cta-wrapper {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: var(--bg-card);
-      /* 키보드가 올라왔을 때 배경색을 살짝 바꿔서 네이티브 느낌을 줄 수도 있음 */
-      border-top: 1px solid transparent; 
-      transition: transform 0.1s ease-out, padding 0.1s ease-out, border-color 0.1s;
-      z-index: 100;
-    }
-
-    /* 키보드가 올라갔을 때 적용될 클래스 */
-    .cta-wrapper.keyboard-up {
-      padding-bottom: 16px; /* 키보드 위에서는 safe-area 무시 */
-      border-top-color: #eee;
-      box-shadow: 0 -10px 20px rgba(0,0,0,0.03);
-    }
-
-    .cta-btn, .unsure-btn {
-      width: 100%;
-      height: 50px;
-      border-radius: var(--radius);
-      font-size: var(--text-base);
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .cta-btn { background: var(--btn-dark); color: var(--text-inverse); border: none; }
-    .cta-btn:disabled { background: var(--border); color: var(--text-tertiary); }
-    .unsure-btn { border: 1.5px solid var(--border); background: #fff; color: var(--text-primary); }
-
-    /* iOS 완료 툴바 (inputAccessoryView의 상단 바 역할) */
     .done-toolbar {
       display: none;
       position: fixed;
-      left: 0; right: 0;
+      left: 0; right: 0; bottom: 0;
       height: 44px;
-      background: #f1f1f4;
-      border-top: 1px solid #ccc;
+      background: #d1d1d6;
+      border-top: 1px solid #aaa;
       align-items: center;
       justify-content: flex-end;
       padding: 0 16px;
       z-index: 200;
     }
     .done-toolbar.active { display: flex; }
+    .done-toolbar-btn {
+      background: none;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: #007aff;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .top-nav { margin-bottom: 20px; }
+
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -4px;
+      color: var(--text-primary);
+      border-radius: var(--radius);
+      transition: 0.15s;
+    }
+
+    .back-btn:hover { background: var(--bg-chip); }
+
+    .step-dots {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .step-dot-item {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .step-dot-item.active {
+      width: 24px;
+      border-radius: var(--radius-pill);
+      background: var(--brand);
+    }
+
+    .header { margin-bottom: 48px; }
+
+    .header h1 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .input-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .big-input-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .big-input-wrap input {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--text-display);
+      font-weight: 700;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      width: 150px;
+      text-align: right;
+      background: transparent;
+      caret-color: var(--text-primary);
+    }
+
+    .big-input-wrap input::placeholder { color: var(--border); }
+
+    .big-input-wrap input::-webkit-outer-spin-button,
+    .big-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .unit {
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    .cta-wrapper {
+      flex-shrink: 0;
+      padding: 16px 0 calc(32px + env(safe-area-inset-bottom));
+      background: #fff;
+    }
+
+    .cta-btn {
+      width: 100%;
+      height: 47px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--btn-dark);
+      color: var(--text-inverse);
+      border: none;
+      border-radius: var(--radius);
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cta-btn:disabled {
+      background: var(--border);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    .cta-btn:not(:disabled):hover { background: var(--btn-dark-hover); }
+
+    .unsure-btn {
+      width: 100%;
+      height: 47px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-primary);
+      font-size: var(--text-base);
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 10px;
+    }
+    .unsure-btn:hover { opacity: 0.8; }
   </style>
 </head>
 <body>
   <div class="container">
+
     <div class="top-nav">
-      <button class="back-btn" onclick="history.back()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"/></svg>
+      <button class="back-btn" onclick="window.location.href='onboarding_2.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
       </button>
     </div>
-    
+    <div class="step-dots">
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item active"></div>
+      <div class="step-dot-item"></div>
+      <div class="step-dot-item"></div>
+    </div>
+
     <div class="header">
       <h1>어깨너비를 입력해주세요</h1>
       <p>상의 핏을 더 정확하게 맞추는 데 도움이 돼요</p>
@@ -136,55 +239,58 @@
       </div>
     </div>
 
-    <div class="cta-wrapper" id="ctaWrapper">
-      <button class="unsure-btn" onclick="location.href='onboarding_4.html'">잘 모르겠어요</button>
-      <button class="cta-btn" id="ctaBtn" disabled onclick="location.href='onboarding_4.html'">다음</button>
+    <div class="cta-wrapper">
+      <button class="unsure-btn" id="unsureBtn">잘 모르겠어요</button>
+      <button class="cta-btn" id="ctaBtn" disabled>다음</button>
     </div>
+
   </div>
 
   <div class="done-toolbar" id="doneToolbar">
-    <button style="color:#007aff; font-size:17px; font-weight:600; background:none; border:none;" onclick="document.getElementById('shoulder').blur()">완료</button>
+    <button class="done-toolbar-btn" id="doneToolbarBtn" type="button">완료</button>
   </div>
 
   <script>
     const input = document.getElementById('shoulder');
     const ctaBtn = document.getElementById('ctaBtn');
-    const ctaWrapper = document.getElementById('ctaWrapper');
-    const doneToolbar = document.getElementById('doneToolbar');
+    const unsureBtn = document.getElementById('unsureBtn');
 
     input.addEventListener('input', () => {
       input.value = input.value.replace(/\D/g, '');
       ctaBtn.disabled = !input.value.trim();
     });
 
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => {
-        const vv = window.visualViewport;
-        const keyboardHeight = window.innerHeight - vv.height;
-
-        if (keyboardHeight > 100) { 
-          // 1. 네이티브 inputAccessoryView처럼 '완료' 바 띄우기
-          doneToolbar.classList.add('active');
-          doneToolbar.style.bottom = keyboardHeight + 'px';
-
-          // 2. 버튼 컨테이너를 완료 바 위로 '트랜스폼'
-          // transform을 사용하면 레이아웃 계산이 빨라 더 부드럽게 따라옵니다.
-          ctaWrapper.classList.add('keyboard-up');
-          ctaWrapper.style.transform = `translateY(-${keyboardHeight + 44}px)`;
-        } else {
-          // 복구
-          doneToolbar.classList.remove('active');
-          ctaWrapper.classList.remove('keyboard-up');
-          ctaWrapper.style.transform = `translateY(0)`;
-        }
-      });
-    }
-
-    input.addEventListener('focus', () => {
-      setTimeout(() => {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+    ctaBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_4.html';
     });
+
+    unsureBtn.addEventListener('click', () => {
+      window.location.href = 'onboarding_4.html';
+    });
+
+    const isMobile = window.matchMedia('(max-width: 500px)').matches;
+
+    if (isMobile) {
+      const container = document.querySelector('.container');
+      const doneToolbar = document.getElementById('doneToolbar');
+      document.getElementById('doneToolbarBtn').addEventListener('click', () => input.blur());
+
+      input.addEventListener('focus', () => doneToolbar.classList.add('active'));
+      input.addEventListener('blur', () => doneToolbar.classList.remove('active'));
+
+      if (window.visualViewport) {
+        const updateLayout = () => {
+          const vp = window.visualViewport;
+          // container를 visualViewport 크기에 맞춤 → 스크롤 없이 위아래만 변동
+          container.style.height = vp.height + 'px';
+          container.style.top = vp.offsetTop + 'px';
+          // done-toolbar: 키보드 바로 위에 고정
+          doneToolbar.style.bottom = Math.max(0, window.innerHeight - vp.height - vp.offsetTop) + 'px';
+        };
+        window.visualViewport.addEventListener('resize', updateLayout);
+        window.visualViewport.addEventListener('scroll', updateLayout);
+      }
+    }
   </script>
 </body>
 </html>
