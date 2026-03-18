@@ -24,7 +24,6 @@
       max-width: 390px;
       height: 100vh;
       background: var(--bg-card);
-      border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -33,15 +32,16 @@
     /* ── 상단 고정 헤더 ── */
     .card-header {
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      height: 56px;
       padding: 0 20px;
       background: var(--bg-card);
       z-index: 10;
     }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      height: 56px;
+      display: contents;
     }
 
     .back-btn {
@@ -257,6 +257,11 @@
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 500px) {
+      body { background: var(--bg-card); }
+      .phone { max-width: 100%; border: none; }
     }
   </style>
 </head>
